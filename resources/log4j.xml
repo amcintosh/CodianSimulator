@@ -33,7 +33,7 @@
 		</layout>
 	</appender>
 
-	<logger name="net.amcintosh">
+	<logger name="net.amcintosh" additivity="false">
 		<level value="info" />
 		<appender-ref ref="file" />
 		<appender-ref ref="console" />

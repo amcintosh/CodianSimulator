@@ -117,12 +117,32 @@ public class DBInitializer {
 	}
 	
 	private static String createConferencesTableSQL() {
-		String sql = "create table people (name, occupation);";
+		String sql = "CREATE TABLE conference (conferenceName TEXT UNIQUE NOT NULL, " 
+					+ "conferenceType TEXT, uniqueId INTEGER PRIMARY KEY, "
+					+ "private INTEGER, joinAudioMuted INTEGER, joinVideoMuted INTEGER, " 
+					+ "enforceMaximumAudioPorts INTEGER, enforceMaximumVideoPorts INTEGER, "
+					+ "templateName TEXT, templateNumber INTEGER, numericId TEXT, "
+					+ "guestNumericId TEXT, registerWithGatekeeper INTEGER, "
+					+ "registerWithSIPRegistrar INTEGER, startTime TEXT, pin TEXT, "
+					+ "guestPin TEXT, description TEXT, startLocked INTEGER, durationSeconds INTEGER, "
+					+ "conferenceMeEnabled INTEGER, automaticLectureMode TEXT, "
+					+ "automaticLectureModeEnabled INTEGER, automaticLectureModeTimeout INTEGER, "
+					+ "multicastStreamingEnabled INTEGER, unicastStreamingEnabled INTEGER, "
+					+ "contentMode TEXT, h239Enabled INTEGER, lastChairmanLeavesDisconnect INTEGER, "
+					+ "cleanupTimeout INTEGER, preconfiguredParticipantsDefer INTEGER, "
+					+ "contentTxCodec TEXT, contentTxMinimumBitRate TEXT, maximumAudioPorts INTEGER, "
+					+ "maximumVideoPorts INTEGER, reservedAudioPorts INTEGER, reservedVideoPorts INTEGER, "
+					+ "repetition TEXT, weekDay TEXT, whichWeek TEXT, weekDays TEXT, terminationType TEXT, "
+					+ "numberOfRepeats INTEGER, customLayoutEnabled INTEGER, layoutControlEx TEXT, "
+					+ "cameraControl TEXT, newParticipantsCustomLayout INTEGER, customLayout INTEGER, "
+					+ "chairControl TEXT, suppressDtmfEx TEXT, inCallMenuControlChair TEXT, " 
+					+ "inCallMenuControlGuest TEXT, encryptionRequired INTEGER, " 
+					+ "contentContribution INTEGER, contentTransmitResolutions TEXT);";
 		return sql;
 	}
 	
 	private static String createParticipantsTableSQL() {
-		String sql = "create table mo_people (name, occupation);";
+		String sql = "create table participant (name, occupation);";
 		return sql;
 	}
 

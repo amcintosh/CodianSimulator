@@ -68,6 +68,10 @@ public class DBInitializer {
 		}
 	}
 	
+	
+	/**
+	 * Creates device properties table and populates it with initial data.
+	 */
 	private static void createCodianDataTableSQL(Statement stat) throws SQLException {
 		stat.executeUpdate("CREATE TABLE device_properties (property TEXT, value TEXT);");
 		stat.executeUpdate("INSERT INTO device_properties values(\"model\", \"Codian MCU 4505\");");
@@ -82,8 +86,6 @@ public class DBInitializer {
 		stat.executeUpdate("INSERT INTO device_properties values(\"maxVideoResolution\", \"4cif\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"isdnPorts\", \"-1\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"restartTime\", null);");
-
-
 	}
 	
 	public static void setDBStartupTime() {
@@ -116,6 +118,11 @@ public class DBInitializer {
 		stat.executeUpdate("INSERT INTO device_properties values(\"restartTime\", null);");
 	}
 	
+	/**
+	 * SQL to create conferences table.
+	 * 
+	 * @return String of Create Table SQL
+	 */
 	private static String createConferencesTableSQL() {
 		String sql = "CREATE TABLE conference (conferenceName TEXT UNIQUE NOT NULL, " 
 					+ "conferenceType TEXT, uniqueId INTEGER PRIMARY KEY, "
@@ -140,9 +147,28 @@ public class DBInitializer {
 					+ "contentContribution INTEGER, contentTransmitResolutions TEXT);";
 		return sql;
 	}
-	
+
+	/**
+	 * SQL to create participant table.
+	 * 
+	 * @return String of Create Table SQL
+	 */
 	private static String createParticipantsTableSQL() {
-		String sql = "create table participant (name, occupation);";
+		String sql = "CREATE TABLE participant ( conferenceName TEXT NOT NULL, participantName TEXT NOT NULL, "
+					+ "autoAttendantUniqueID INTEGER PRIMARY KEY, connectionUniqueId INTEGER, "
+					+ "addResponse INTEGER, participantProtocol TEXT, participantType TEXT, "
+					+ "address TEXT, gatewayAddress TEXT, useSIPRegistrar INTEGER, " 
+					+ "transportProtocol TEXT, password TEXT, deferConnection INTEGER, " 
+					+ "addAsGuest INTEGER, actAsRecorder INTEGER, maxBitRateToMCU INTEGER, " 
+					+ "maxBitRateFromMCU INTEGER, motionSharpnessTradeoff TEXT, " 
+					+ "displayNameOverrideStatus INTEGER, displayNameOverrideValue TEXT, " 
+					+ "cpLayout TEXT, layoutControlEx TEXT, audioRxMuted INTEGER, " 
+					+ "audioRxGainMode TEXT, audioRxGainMillidB INTEGER, videoRxMuted INTEGER, " 
+					+ "videoTxWidescreen INTEGER, videoTxMaxResolution TEXT, " 
+					+ "videoRxMaxResolution TEXT, autoConnect INTEGER, autoDisconnect INTEGER, " 
+					+ "borderWidth INTEGER, dtmfSequence TEXT, linkType TEXT, h239Negotiation TEXT, " 
+					+ "autoAttendantUniqueID TEXT, layoutControlEnabled INTEGER, " 
+					+ "UNIQUE(conferenceName, participantName));";
 		return sql;
 	}
 

@@ -91,6 +91,38 @@ public class DBUtil {
 
 		return true;
 	}
+
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean insertParticipant(HashMap<String, Object> params) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBManager.getInstance().getConnection();
+			con.setAutoCommit(false);
+
+			Statement stat = con.createStatement();
+			String insert = createInsertFromParameters("participant",params);		
+			stat.executeUpdate(insert);
+			con.commit();
+		} catch (SQLException e) {
+			log.error("insertParticipant",e);
+			throw e;
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return true;
+	}
 	
 	/**
 	 * 

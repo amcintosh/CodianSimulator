@@ -5,8 +5,7 @@ package net.amcintosh.codian;
  */
 public class Constants {
 
-	/**
-	 *  Wed Jul 18 10:04:01 EDT 2012
-	 */
-	public static final String CODIAN_DATE_FORMAT = "EEE MMM dd HH:mm:ss zzz yyyy";
+	public static final String CODIAN_DATE_FORMAT = "yyyyMMdd'T'HH:mm:ss";
+	
+	public static final String DATETIME_FORMAT = "yyyy-MM-dd hh:mm:ss";
 }

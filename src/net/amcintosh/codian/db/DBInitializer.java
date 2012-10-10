@@ -89,7 +89,7 @@ public class DBInitializer {
 	}
 	
 	public static void setDBStartupTime() {
-		//restartTime=Wed Jul 18 10:04:01 EDT 2012
+		//restartTime=20106036T19:15:00
 		SimpleDateFormat sdf = new SimpleDateFormat(Constants.CODIAN_DATE_FORMAT);
 		try {
 			Connection con = DBManager.getInstance().getConnection();
@@ -129,8 +129,8 @@ public class DBInitializer {
 					+ "private INTEGER, joinAudioMuted INTEGER, joinVideoMuted INTEGER, " 
 					+ "enforceMaximumAudioPorts INTEGER, enforceMaximumVideoPorts INTEGER, "
 					+ "templateName TEXT, templateNumber INTEGER, numericId TEXT, "
-					+ "guestNumericId TEXT, registerWithGatekeeper INTEGER, "
-					+ "registerWithSIPRegistrar INTEGER, startTime TEXT, pin TEXT, "
+					+ "guestNumericId TEXT, registerWithGatekeeper INTEGER, pin TEXT, "
+					+ "registerWithSIPRegistrar INTEGER, startTime DATETIME DEFAULT current_timestamp, "
 					+ "guestPin TEXT, description TEXT, startLocked INTEGER, durationSeconds INTEGER, "
 					+ "conferenceMeEnabled INTEGER, automaticLectureMode TEXT, "
 					+ "automaticLectureModeEnabled INTEGER, automaticLectureModeTimeout INTEGER, "
@@ -167,7 +167,7 @@ public class DBInitializer {
 					+ "videoTxWidescreen INTEGER, videoTxMaxResolution TEXT, " 
 					+ "videoRxMaxResolution TEXT, autoConnect INTEGER, autoDisconnect INTEGER, " 
 					+ "borderWidth INTEGER, dtmfSequence TEXT, linkType TEXT, h239Negotiation TEXT, " 
-					+ "autoAttendantUniqueID TEXT, layoutControlEnabled INTEGER, " 
+					+ "layoutControlEnabled INTEGER, " 
 					+ "UNIQUE(conferenceName, participantName));";
 		return sql;
 	}

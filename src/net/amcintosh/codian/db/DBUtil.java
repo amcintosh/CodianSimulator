@@ -64,38 +64,6 @@ public class DBUtil {
 	 * 
 	 * @param params
 	 * @return
-	 * @throws SQLException 
-	 */
-	public static boolean insertConference(HashMap<String, Object> params) throws SQLException {
-		Connection con = null;
-
-		try {
-			con = DBManager.getInstance().getConnection();
-			con.setAutoCommit(false);
-
-			Statement stat = con.createStatement();
-			String insert = createInsertFromParameters("conference",params);		
-			stat.executeUpdate(insert);
-			con.commit();
-		} catch (SQLException e) {
-			log.error("insertConference",e);
-			throw e;
-		} finally {
-			if (con != null) {
-				try {
-					con.close();
-				} catch (SQLException e) {
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * 
-	 * @param params
-	 * @return
 	 * @throws SQLException
 	 */
 	public static boolean insertParticipant(HashMap<String, Object> params) throws SQLException {
@@ -130,7 +98,7 @@ public class DBUtil {
 	 * @param params
 	 * @return
 	 */
-	private static String createInsertFromParameters(String tableName, HashMap<String, Object> params) {
+	protected static String createInsertFromParameters(String tableName, HashMap<String, Object> params) {
 		
 		String fields = "";
 		String values = "";
@@ -140,11 +108,17 @@ public class DBUtil {
 			if (!"authenticationUser".equals(key) && !"authenticationPassword".equals(key)) {
 				Object value = params.get(key);
 				fields = fields + key + (iter.hasNext() ? "," : "");
-				values = values + "\"" + value + "\"" + (iter.hasNext() ? "," : "");
+				if (key.equals("startTime")) {
+					values = values + "\"" + new SimpleDateFormat(Constants.DATETIME_FORMAT).format(value) + "\"" + (iter.hasNext() ? "," : "");
+				} else {
+					values = values + "\"" + value + "\"" + (iter.hasNext() ? "," : "");
+				}
 			}
 		}
 		String insert = "INSERT INTO " + tableName + "(" + fields + ") " + "VALUES ("+values+");";
-		log.error(insert);
+		if (log.isDebugEnabled()) {
+			log.debug(insert);
+		}
 		return insert;
 	}
 

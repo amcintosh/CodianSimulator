@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import net.amcintosh.codian.Constants;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -49,24 +51,45 @@ public class ConferenceDB {
 	}
 
 
+	/**
+	 * 
+	 * @param active
+	 * @param completed
+	 * @return
+	 */
 	public static List<HashMap<String,Object>> getConferences(boolean active, boolean completed) {
+		return getConferences(active, completed, -1);
+	}
+	
+	/**
+	 * 
+	 * @param active
+	 * @param completed
+	 * @param minId
+	 * @return
+	 */
+	public static List<HashMap<String,Object>> getConferences(boolean active, boolean completed, int minId) {
 		ArrayList<HashMap<String,Object>> conferences = new ArrayList<HashMap<String,Object>>();
 		Connection con = null;
-
+		Statement stat = null;
+		
 		try {
 			con = DBManager.getInstance().getConnection();
-			con.setAutoCommit(false);
-
-			Statement stat = con.createStatement();
+			
+			stat = con.createStatement();
 			String query = "SELECT * FROM conference WHERE 1=1";
 			
+			if (minId > 0) {
+				query += " AND uniqueId > " + minId;
+			}
 			if (completed) {
 				query += " AND startTime < DATETIME('now')";
 			}
 			
 			ResultSet resultSet = stat.executeQuery(query);
+			int numResults = 0;
 			
-			while (resultSet.next()) {
+			while (resultSet.next() && numResults < Constants.CONFERENCE_ENUMERATE_MAXRESULTS) {
 				HashMap<String,Object> conference = new HashMap<String,Object>();
 				conference.put("conferenceName", resultSet.getString("conferenceName"));
 				conference.put("conferenceType", resultSet.getString("conferenceType"));
@@ -125,10 +148,19 @@ public class ConferenceDB {
 				conference.put("contentTransmitResolutions", resultSet.getString("contentTransmitResolutions"));
 
 				conferences.add(conference);
+				numResults++;
 			}
+			
 		} catch (SQLException e) {
 			log.error("getConferences",e);
-		} 
+		} finally {
+			if (con!=null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
 
 		
 		return conferences;

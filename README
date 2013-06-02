@@ -1,3 +1,13 @@
 http://ws.apache.org/xmlrpc/server.html
 
 http://www.xerial.org/trac/Xerial/wiki/SQLiteJDBC
+
+
+participant.add
+conference.create
+conference.destroy
+device.query
+conference.enumerate
+participant.enumerate
+participant.modify
+conference.paneplacement.modify

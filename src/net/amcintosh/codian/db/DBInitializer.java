@@ -74,17 +74,27 @@ public class DBInitializer {
 	 */
 	private static void createCodianDataTableSQL(Statement stat) throws SQLException {
 		stat.executeUpdate("CREATE TABLE device_properties (property TEXT, value TEXT);");
-		stat.executeUpdate("INSERT INTO device_properties values(\"model\", \"Codian MCU 4505\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"serial\", \"SM001B0D\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"softwareVersion\", \"4.3(2.18)\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"buildVersion\", \"6.18(2.18)\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"apiVersion\", \"2.9\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"activatedFeatures\", \"odian MCU 4505\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"totalVideoPorts\", \"12\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"totalAudioOnlyPorts\", \"12\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"portReservationMode\", \"disabled\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"maxVideoResolution\", \"4cif\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"isdnPorts\", \"-1\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"model\", \"" 
+				+ Config.getConfig().getProperty("device.model") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"serial\", \""
+				+ Config.getConfig().getProperty("device.serial") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"softwareVersion\", \""
+				+ Config.getConfig().getProperty("device.softwareVersion") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"buildVersion\", \""
+				+ Config.getConfig().getProperty("device.buildVersion") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"apiVersion\", \""
+				+ Constants.API_VERSION + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"activatedFeatures\", \"\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"totalVideoPorts\", \""
+				+ Config.getConfig().getProperty("device.totalVideoPorts") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"totalAudioOnlyPorts\", \""
+				+ Config.getConfig().getProperty("device.totalAudioOnlyPorts") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"portReservationMode\", \""
+				+ Config.getConfig().getProperty("device.portReservationMode") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"maxVideoResolution\", \""
+				+ Config.getConfig().getProperty("device.maxVideoResolution") + "\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"isdnPorts\", \""
+				+ Config.getConfig().getProperty("device.isdnPorts") + "\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"restartTime\", null);");
 	}
 	
@@ -105,11 +115,11 @@ public class DBInitializer {
 	private static void populateCodianDataTable(Statement stat) throws SQLException {
 
 		stat.executeUpdate("INSERT INTO device_properties values(\"model\", \"Codian MCU 4505\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"serial\", \"SM001B0D\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"softwareVersion\", \"4.3(2.18)\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"buildVersion\", \"6.18(2.18)\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"serial\", \"AMCNET\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"softwareVersion\", \"4.4(3.49)\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"buildVersion\", \"6.18(3.49)\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"apiVersion\", \"2.9\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"activatedFeatures\", \"odian MCU 4505\");");
+		stat.executeUpdate("INSERT INTO device_properties values(\"activatedFeatures\", \"Codian MCU 4505\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"totalVideoPorts\", \"12\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"totalAudioOnlyPorts\", \"12\");");
 		stat.executeUpdate("INSERT INTO device_properties values(\"portReservationMode\", \"disabled\");");
@@ -131,8 +141,8 @@ public class DBInitializer {
 					+ "templateName TEXT, templateNumber INTEGER, numericId TEXT, "
 					+ "guestNumericId TEXT, registerWithGatekeeper INTEGER, pin TEXT, "
 					+ "registerWithSIPRegistrar INTEGER, startTime DATETIME DEFAULT current_timestamp, "
-					+ "guestPin TEXT, description TEXT, startLocked INTEGER, durationSeconds INTEGER, "
-					+ "conferenceMeEnabled INTEGER, automaticLectureMode TEXT, "
+					+ "durationSeconds INTEGER, endTime DATETIME, guestPin TEXT, description TEXT, "
+					+ "startLocked INTEGER, conferenceMeEnabled INTEGER, automaticLectureMode TEXT, "
 					+ "automaticLectureModeEnabled INTEGER, automaticLectureModeTimeout INTEGER, "
 					+ "multicastStreamingEnabled INTEGER, unicastStreamingEnabled INTEGER, "
 					+ "contentMode TEXT, h239Enabled INTEGER, lastChairmanLeavesDisconnect INTEGER, "

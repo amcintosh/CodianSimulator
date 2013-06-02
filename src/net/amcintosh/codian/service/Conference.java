@@ -77,20 +77,18 @@ public class Conference {
 			if (params.get("enumerateID")!=null) {
 				incomingEnumerateID = Integer.parseInt((String)params.get("enumerateID"));
 			}
-			boolean active = false;
-			if (params.get("active")!=null) {
-				active = Boolean.parseBoolean((String)params.get("active"));	
-			}
-			boolean completed = false;
-			if (params.get("active")!=null) {
-				completed = Boolean.parseBoolean((String)params.get("completed"));	
-			}
-			if (log.isDebugEnabled()) {
-				log.debug("conference.enumerate called. Input: enumerateID=" + incomingEnumerateID
-						+ ", active=" + active + ", completed="+completed);
+			
+			String enumerateFilter = null;
+			if (params.get("enumerateFilter")!=null) {
+				enumerateFilter = (String)params.get("enumerateFilter");
 			}
 			
-			List<HashMap<String,Object>> conferences = ConferenceDB.getConferences(active, completed, incomingEnumerateID); 
+			if (log.isDebugEnabled()) {
+				log.debug("conference.enumerate called. Input: enumerateID=" + incomingEnumerateID
+						+ ", enumerateFilter=" + enumerateFilter);
+			}
+			
+			List<HashMap<String,Object>> conferences = ConferenceDB.getConferences(enumerateFilter,incomingEnumerateID); 
 			data.put("conferences", conferences);
 			
 			if (conferences.size()>=Constants.CONFERENCE_ENUMERATE_MAXRESULTS) {

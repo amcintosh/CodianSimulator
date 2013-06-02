@@ -33,6 +33,7 @@ public class ConferenceDB {
 			con.setAutoCommit(false);
 
 			Statement stat = con.createStatement();
+			
 			String insert = DBUtil.createInsertFromParameters("conference",params);		
 			stat.executeUpdate(insert);
 			con.commit();
@@ -53,22 +54,52 @@ public class ConferenceDB {
 
 	/**
 	 * 
-	 * @param active
-	 * @param completed
+	 * @param id
 	 * @return
 	 */
-	public static List<HashMap<String,Object>> getConferences(boolean active, boolean completed) {
-		return getConferences(active, completed, -1);
+	public static List<HashMap<String,Object>> getConferences(int id) {
+		String query = "";
+		if (id > 0) {
+			query += " AND uniqueId = " + id;
+		}
+		return getConferences(query);
 	}
 	
 	/**
 	 * 
-	 * @param active
-	 * @param completed
+	 * @param enumerateFilter
 	 * @param minId
 	 * @return
 	 */
-	public static List<HashMap<String,Object>> getConferences(boolean active, boolean completed, int minId) {
+	public static List<HashMap<String,Object>> getConferences(String enumerateFilter, int minId) {
+		String query = "";
+		if (minId > 0) {
+			query += " AND uniqueId > " + minId;
+		}
+		if (enumerateFilter!=null) {
+			if (enumerateFilter.contains("!completed")) {
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";
+			} else if (enumerateFilter.contains("completed")) {
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now')";
+			}
+		
+			if (enumerateFilter.contains("!active")) {
+				query += " AND (startTime > DATETIME('now')";
+				query += " OR DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now'))";
+			} else if (enumerateFilter.contains("active")) {
+				query += " AND startTime < DATETIME('now')";
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";			
+			}
+		}
+		return getConferences(query);
+	}
+	
+	/**
+	 * 
+	 * @param queryClause
+	 * @return
+	 */
+	private static List<HashMap<String,Object>> getConferences(String queryClause) {
 		ArrayList<HashMap<String,Object>> conferences = new ArrayList<HashMap<String,Object>>();
 		Connection con = null;
 		Statement stat = null;
@@ -77,13 +108,9 @@ public class ConferenceDB {
 			con = DBManager.getInstance().getConnection();
 			
 			stat = con.createStatement();
-			String query = "SELECT * FROM conference WHERE 1=1";
-			
-			if (minId > 0) {
-				query += " AND uniqueId > " + minId;
-			}
-			if (completed) {
-				query += " AND startTime < DATETIME('now')";
+			String query = "SELECT * FROM conference WHERE 1=1 " + queryClause;
+			if (log.isTraceEnabled()) {
+				log.trace(query);
 			}
 			
 			ResultSet resultSet = stat.executeQuery(query);

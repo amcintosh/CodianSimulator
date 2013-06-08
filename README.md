@@ -17,14 +17,14 @@ Cisco's [Programming Guides](http://www.cisco.com/en/US/products/ps11341/product
 
 I have thus far only coded the endpoints that I have actually needed myself, which include:
 
-device.query
-conference.create
-~~conference.destroy~~
-conference.enumerate
-~~conference.paneplacement.modify~~
-participant.add
-participant.enumerate
-~~participant.modify~~
+- device.query
+- conference.create
+- ~~conference.destroy~~
+- conference.enumerate
+- ~~conference.paneplacement.modify~~
+- participant.add
+- participant.enumerate
+- ~~participant.modify~~
 
 
 ### Build

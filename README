@@ -1,13 +1,54 @@
-http://ws.apache.org/xmlrpc/server.html
+# Codian Simulator
 
-http://www.xerial.org/trac/Xerial/wiki/SQLiteJDBC
+This is a small project to simulate the API of a Cisco TelePresence MCU (née Tandberg Codian MCU). 
+This is *not* a video bridge. 
+
+Obtaining multiple MCUs for development and lab testing can be prohibitively expensive, 
+so the purpose of this is to aid in development and testing of code that requires multiple bridges 
+(load balancing, monitoring, etc.). This is meant to supplement an existing bridge for development 
+and it is not recommended to use this simulator without an actual bridge also available.     
 
 
-participant.add
-conference.create
-conference.destroy
+### Usage
+
+The application is meant to be a dropin for an Cisco TelePresence MCU and as such should match 
+Cisco's [Programming Guides](http://www.cisco.com/en/US/products/ps11341/products_programming_reference_guides_list.html)
+(Currently coded for API version 2.9). 
+
+I have thus far only coded the endpoints that I have actually needed myself, which include:
+
 device.query
+conference.create
+~~conference.destroy~~
 conference.enumerate
+~~conference.paneplacement.modify~~
+participant.add
 participant.enumerate
-participant.modify
-conference.paneplacement.modify
+~~participant.modify~~
+
+
+### Build
+
+There is a very straight forward ant build file which will produce: /dist/CodianSimulator.war
+I have only tested with tomcat6/7.
+
+
+### Design Notes
+
+As the primary purpose of this is to replicate the API endpoints of an actual Cisco TelePresence MCU, 
+pretty much everything beyond the front facing services was secondary. I have opted for a sqlite
+database for persistence that is destroyed and recreated on undeploy/deploy (you could of course 
+change the base directory so that it sticks around).   
+
+
+### Todo
+
+- Finish things (see endpoints above)
+- Simple UI, for automated tests to check conferences against
+- Probably convert build to Gradle
+
+
+### License
+
+Source code is licensed under the
+[GNU General Public License](http://www.gnu.org/licenses/gpl.html).

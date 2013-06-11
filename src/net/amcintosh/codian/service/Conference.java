@@ -47,6 +47,7 @@ public class Conference {
 	
 			/*
 			TODO: 
+			Reject unknown parameters
 			invalid start time specified
 			invalid end time specified
 			invalid PIN specified. A PIN specified is not a valid series of digits.
@@ -88,7 +89,7 @@ public class Conference {
 						+ ", enumerateFilter=" + enumerateFilter);
 			}
 			
-			List<HashMap<String,Object>> conferences = ConferenceDB.getConferences(enumerateFilter,incomingEnumerateID); 
+			List<HashMap<String,Object>> conferences = ConferenceDB.getConferencesForEnumerate(enumerateFilter,incomingEnumerateID); 
 			data.put("conferences", conferences);
 			
 			if (conferences.size()>=Constants.CONFERENCE_ENUMERATE_MAXRESULTS) {

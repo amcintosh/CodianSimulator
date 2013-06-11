@@ -4,9 +4,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 import net.amcintosh.codian.Constants;
 
@@ -51,72 +55,52 @@ public class ConferenceDB {
 		return true;
 	}
 
-
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static List<HashMap<String,Object>> getConferences() {
+		return getConferences(null);
+	}
+	
+	
 	/**
 	 * 
 	 * @param id
 	 * @return
-	 */
+	 */	
 	public static List<HashMap<String,Object>> getConferences(int id) {
-		String query = "";
+		String query = null;
 		if (id > 0) {
 			query += " AND uniqueId = " + id;
 		}
 		return getConferences(query);
 	}
-	
-	/**
-	 * 
-	 * @param enumerateFilter
-	 * @param minId
-	 * @return
-	 */
-	public static List<HashMap<String,Object>> getConferences(String enumerateFilter, int minId) {
-		String query = "";
-		if (minId > 0) {
-			query += " AND uniqueId > " + minId;
-		}
-		if (enumerateFilter!=null) {
-			if (enumerateFilter.contains("!completed")) {
-				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";
-			} else if (enumerateFilter.contains("completed")) {
-				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now')";
-			}
-		
-			if (enumerateFilter.contains("!active")) {
-				query += " AND (startTime > DATETIME('now')";
-				query += " OR DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now'))";
-			} else if (enumerateFilter.contains("active")) {
-				query += " AND startTime < DATETIME('now')";
-				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";			
-			}
-		}
-		return getConferences(query);
-	}
+
 	
 	/**
 	 * 
 	 * @param queryClause
 	 * @return
 	 */
-	private static List<HashMap<String,Object>> getConferences(String queryClause) {
+	public static List<HashMap<String,Object>> getConferences(String queryClause) {
 		ArrayList<HashMap<String,Object>> conferences = new ArrayList<HashMap<String,Object>>();
 		Connection con = null;
 		Statement stat = null;
-		
+
+		String query = "SELECT * FROM conference WHERE 1=1 " + queryClause;
 		try {
 			con = DBManager.getInstance().getConnection();
 			
 			stat = con.createStatement();
-			String query = "SELECT * FROM conference WHERE 1=1 " + queryClause;
 			if (log.isTraceEnabled()) {
-				log.trace(query);
+				log.trace("getConferences: " + query);
 			}
 			
 			ResultSet resultSet = stat.executeQuery(query);
-			int numResults = 0;
-			
-			while (resultSet.next() && numResults < Constants.CONFERENCE_ENUMERATE_MAXRESULTS) {
+
+			while (resultSet.next()) {
 				HashMap<String,Object> conference = new HashMap<String,Object>();
 				conference.put("conferenceName", resultSet.getString("conferenceName"));
 				conference.put("conferenceType", resultSet.getString("conferenceType"));
@@ -172,12 +156,9 @@ public class ConferenceDB {
 				conference.put("inCallMenuControlGuest", resultSet.getString("inCallMenuControlGuest"));
 				conference.put("encryptionRequired", resultSet.getInt("encryptionRequired"));
 				conference.put("contentContribution", resultSet.getInt("contentContribution"));
-				conference.put("contentTransmitResolutions", resultSet.getString("contentTransmitResolutions"));
 
 				conferences.add(conference);
-				numResults++;
 			}
-			
 		} catch (SQLException e) {
 			log.error("getConferences",e);
 		} finally {
@@ -188,10 +169,188 @@ public class ConferenceDB {
 				}
 			}
 		}
-
-		
+	
 		return conferences;
 	}
 	
+	
+	/**
+	 * 
+	 * @param enumerateFilter
+	 * @param minId
+	 * @return
+	 */
+	public static List<HashMap<String,Object>> getConferencesForEnumerate(String enumerateFilter, int minId) {
+		ArrayList<HashMap<String,Object>> conferences = new ArrayList<HashMap<String,Object>>();
+		Connection con = null;
+		Statement stat = null;
+
+		String query = "SELECT * FROM conference WHERE 1=1 ";
+		if (minId > 0) {
+			query += " AND uniqueId > " + minId;
+		}
+		if (enumerateFilter!=null) {
+			if (enumerateFilter.contains("!completed")) {
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";
+			} else if (enumerateFilter.contains("completed")) {
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now')";
+			}
+		
+			if (enumerateFilter.contains("!active")) {
+				query += " AND (startTime > DATETIME('now')";
+				query += " OR DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') < DATETIME('now'))";
+			} else if (enumerateFilter.contains("active")) {
+				query += " AND startTime < DATETIME('now')";
+				query += " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";			
+			}
+		}
+			
+		try {
+			con = DBManager.getInstance().getConnection();
+			
+			stat = con.createStatement();
+			if (log.isTraceEnabled()) {
+				log.trace("getConferencesForEnumerate: " + query);
+			}
+			
+			ResultSet resultSet = stat.executeQuery(query);
+
+			int numResults = 0;
+			
+			while (resultSet.next() && numResults < Constants.CONFERENCE_ENUMERATE_MAXRESULTS) {
+				HashMap<String,Object> conference = new HashMap<String,Object>();
+				
+				boolean active = false;
+				Date startTime = null;
+				Date endTime = null;
+				int durationSeconds = resultSet.getInt("durationSeconds");
+				try {
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATETIME_FORMAT);
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+					startTime = sdf.parse(resultSet.getString("startTime"));
+					endTime = new Date(startTime.getTime() + (durationSeconds*1000) );
+					Date now = new Date();
+					if (now.after(startTime) && (now.before(endTime) || durationSeconds==0)) { 
+						active = true;
+					}
+				} catch (ParseException e) {
+					log.error("getConferencesForEnumerate: ",e);
+				}
+
+				
+				conference.put("conferenceName", resultSet.getString("conferenceName"));
+				conference.put("conferenceType", resultSet.getString("conferenceType"));
+				conference.put("uniqueId", resultSet.getInt("uniqueId"));
+				conference.put("conferenceActive", active);
+				conference.put("description", resultSet.getString("description"));
+				conference.put("pin", resultSet.getString("pin")==null ? "" : resultSet.getString("pin"));
+				conference.put("guestPin", resultSet.getString("guestPin")==null ? "" : resultSet.getString("guestPin"));
+				conference.put("numericId", resultSet.getString("numericId")==null ? "" : resultSet.getString("numericId"));
+				conference.put("guestNumericId", resultSet.getString("guestNumericId")==null ? "" : resultSet.getString("guestNumericId"));
+				conference.put("registerWithGatekeeper", resultSet.getBoolean("registerWithGatekeeper"));
+				conference.put("registerWithSIPRegistrar", resultSet.getBoolean("registerWithSIPRegistrar"));
+				conference.put("multicastStreamingEnabled", resultSet.getBoolean("multicastStreamingEnabled"));		
+				conference.put("unicastStreamingEnabled", resultSet.getBoolean("unicastStreamingEnabled"));
+				conference.put("conferenceMeEnabled", resultSet.getBoolean("conferenceMeEnabled"));
+				conference.put("contentMode", resultSet.getString("contentMode"));
+				conference.put("h239Enabled", resultSet.getBoolean("h239Enabled")); //Deprecated by contentMode.
+				conference.put("contentImportant", resultSet.getBoolean("contentImportant"));
+				conference.put("h239Important", resultSet.getBoolean("contentImportant")); //Consider this setting deprecated by contentImportant
+				conference.put("contentTxCodec", resultSet.getString("contentTxCodec"));
+				conference.put("contentTxMinimumBitRate", resultSet.getString("contentTxMinimumBitRate"));
+				conference.put("lastChairmanLeavesDisconnect", resultSet.getBoolean("lastChairmanLeavesDisconnect"));
+				conference.put("preconfiguredParticipantsDefer", resultSet.getBoolean("preconfiguredParticipantsDefer"));
+				conference.put("startLocked", resultSet.getBoolean("startLocked"));
+				conference.put("locked", resultSet.getBoolean("startLocked")); //TODO: examine on create
+				conference.put("maximumAudioPorts", resultSet.getInt("maximumAudioPorts"));
+				conference.put("maximumVideoPorts", resultSet.getInt("maximumVideoPorts"));
+				conference.put("reservedAudioPorts", resultSet.getInt("reservedAudioPorts"));
+				conference.put("reservedVideoPorts", resultSet.getInt("reservedVideoPorts"));
+				conference.put("customLayoutEnabled", resultSet.getBoolean("customLayoutEnabled"));
+				conference.put("customLayout", resultSet.getInt("customLayout"));
+				conference.put("private", resultSet.getBoolean("private"));
+				conference.put("chairControl", resultSet.getString("chairControl"));
+				conference.put("suppressDtmfEx", resultSet.getString("suppressDtmfEx"));
+				conference.put("layoutControlEx", resultSet.getString("layoutControlEx"));
+				conference.put("layoutControlEnabled", "disabled".equals(resultSet.getString("layoutControlEx")) ? false : true);
+				conference.put("joinAudioMuted", resultSet.getBoolean("joinAudioMuted"));
+				conference.put("joinVideoMuted", resultSet.getBoolean("joinVideoMuted"));
+				conference.put("cameraControl", resultSet.getString("cameraControl"));
+				conference.put("inCallMenuControlChair", resultSet.getString("inCallMenuControlChair"));
+				conference.put("inCallMenuControlGuest", resultSet.getString("inCallMenuControlGuest"));
+				conference.put("automaticLectureMode", resultSet.getString("automaticLectureMode"));
+				conference.put("automaticLectureModeEnabled", resultSet.getBoolean("automaticLectureModeEnabled"));
+				conference.put("automaticLectureModeTimeout", resultSet.getInt("automaticLectureModeTimeout"));
+				conference.put("encryptionRequired", resultSet.getBoolean("encryptionRequired"));
+				conference.put("contentContribution", resultSet.getBoolean("contentContribution"));
+				/* 
+				 * Note: contentTransmitResolutions and newParticipantsCustomLayout 
+				 * are not documented in API spec for enumerate endpoint, but returns with actual codian.
+				 */
+				conference.put("contentTransmitResolutions", resultSet.getString("contentTransmitResolutions")); 
+				conference.put("newParticipantsCustomLayout", resultSet.getBoolean("newParticipantsCustomLayout"));
+
+				/*
+				 *  Note: joinAGC and contentPassthroughLimit are not documented anywhere!
+				 *  Both are returned by actual codian. 
+				 */
+				conference.put("joinAGC", false);
+				conference.put("contentPassthroughLimit", "none");
+				
+				
+				conference.put("floorStatus", resultSet.getString("floorStatus"));
+				/* 
+				 * TODO: floorStatus can be set by conference.floor.modify.
+				 * When that endpoint is supported, floor status will have to be accounted for
+				 * - floorParticipant struct
+				 * - chairParticipant struct
+				 */
+
+				// Conditionally returned for scheduled conferences only: (Currently all)
+				conference.put("startTime", startTime);
+				conference.put("durationSeconds", durationSeconds);
+				
+				String repetition = resultSet.getString("repetition");
+				conference.put("repetition", repetition);
+				if (!"none".equals(repetition)) {
+					conference.put("weekDay", resultSet.getString("weekDay"));
+					conference.put("whichWeek", resultSet.getString("whichWeek"));
+					conference.put("weekDays", resultSet.getString("weekDays"));
+					conference.put("terminationType", resultSet.getString("terminationType"));
+
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATETIME_FORMAT);
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+					try {
+						Date terminationDate = sdf.parse(resultSet.getString("terminationDate"));
+						conference.put("terminationDate", terminationDate);
+					} catch (ParseException e) {
+						log.error("getConferencesForEnumerate", e);
+					}
+				}
+
+				// Conditionally returned for active conferences only:
+				if (active) {
+					conference.put("activeStartTime", startTime);
+					conference.put("activeEndTime", endTime);
+					// TODO: activeConferenceId should eventually become its own sequence
+					conference.put("activeConferenceId", resultSet.getInt("uniqueId")); 
+				}
+				 
+				conferences.add(conference);
+				numResults++;
+			}
+		} catch (SQLException e) {
+			log.error("getConferencesForEnumerate",e);
+		} finally {
+			if (con!=null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+	
+		return conferences;
+	}
 	
 }

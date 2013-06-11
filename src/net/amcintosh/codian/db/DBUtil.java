@@ -9,8 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TimeZone;
 
-import net.amcintosh.codian.Config;
 import net.amcintosh.codian.Constants;
 
 import org.apache.log4j.Logger;
@@ -78,7 +78,9 @@ public class DBUtil {
 				Object value = params.get(key);
 				fields = fields + key + (iter.hasNext() ? "," : "");
 				if (key.equals("startTime")) {
-					values = values + "\"" + new SimpleDateFormat(Constants.DATETIME_FORMAT).format(value) + "\"" + (iter.hasNext() ? "," : "");
+					SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATETIME_FORMAT);
+					sdf.setTimeZone(TimeZone.getTimeZone("UTC"));  
+					values = values + "\"" + sdf.format(value) + "\"" + (iter.hasNext() ? "," : "");
 				} else {
 					values = values + "\"" + value + "\"" + (iter.hasNext() ? "," : "");
 				}

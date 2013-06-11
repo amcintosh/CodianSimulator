@@ -42,7 +42,7 @@
     </war>
   </target>
 
-    <target name="clean">
+  <target name="clean">
     <delete dir="dist" />
     <delete dir="classes" />
   </target>

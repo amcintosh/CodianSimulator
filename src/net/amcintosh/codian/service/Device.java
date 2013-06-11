@@ -16,6 +16,9 @@ public class Device {
 	private static Logger log = Logger.getLogger(Device.class.getName());
 	
 	public HashMap<String,Object> query(HashMap<String, Object> params) throws XmlRpcException {
+		if (log.isDebugEnabled()) {
+			log.debug("In: Device.query");
+		}
 		HashMap<String,Object> data = new HashMap<String,Object>();
 		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {
 			data = DBUtil.getDeviceProperties();

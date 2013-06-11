@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.amcintosh.codian.Constants;
-import net.amcintosh.codian.db.ConferenceDB;
-import net.amcintosh.codian.db.DBUtil;
 import net.amcintosh.codian.db.ParticipantDB;
 
 import org.apache.log4j.Logger;
@@ -34,7 +32,10 @@ public class Participant {
 			if (params.get("participantName")==null) {
 				throw new XmlRpcException("no participant name supplied");	
 			}
-
+			
+			//TODO: Reject unknown parameters
+			
+			
 			try {
 				success = ParticipantDB.insertParticipant(params);
 			} catch (SQLException e) {

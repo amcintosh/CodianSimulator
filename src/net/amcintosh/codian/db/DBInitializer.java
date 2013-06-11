@@ -20,14 +20,18 @@ public class DBInitializer {
 	private static Logger log = Logger.getLogger(DBInitializer.class.getName());
 
 	/**
+	 * Check if a database exists at the default location.
 	 * 
-	 * @return
+	 * @return True if database exists
 	 */
 	public static boolean dbExists() {
 		File file = new File(Config.getConfig().getProperty("app_root")+DBManager.DB_FILE);
 		return file.exists();
 	}
 
+	/**
+	 * If database already exists, do nothing. Otherwise create tables and initialize device properties.
+	 */
 	public static void createDb() {
 		if (dbExists()) {
 			log.info("DB Exists");
@@ -44,9 +48,6 @@ public class DBInitializer {
 			
 			createCodianDataTableSQL(stat);
 			con.commit();
-			
-			//populateCodianDataTable(stat);
-			//con.commit();
 
 			stat.executeUpdate(createConferencesTableSQL());
 			con.commit();
@@ -71,6 +72,9 @@ public class DBInitializer {
 	
 	/**
 	 * Creates device properties table and populates it with initial data.
+	 * 
+	 * @param stat
+	 * @throws SQLException
 	 */
 	private static void createCodianDataTableSQL(Statement stat) throws SQLException {
 		stat.executeUpdate("CREATE TABLE device_properties (property TEXT, value TEXT);");
@@ -112,22 +116,7 @@ public class DBInitializer {
 		}
 	}
 	
-	private static void populateCodianDataTable(Statement stat) throws SQLException {
-
-		stat.executeUpdate("INSERT INTO device_properties values(\"model\", \"Codian MCU 4505\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"serial\", \"AMCNET\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"softwareVersion\", \"4.4(3.49)\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"buildVersion\", \"6.18(3.49)\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"apiVersion\", \"2.9\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"activatedFeatures\", \"Codian MCU 4505\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"totalVideoPorts\", \"12\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"totalAudioOnlyPorts\", \"12\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"portReservationMode\", \"disabled\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"maxVideoResolution\", \"4cif\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"isdnPorts\", \"-1\");");
-		stat.executeUpdate("INSERT INTO device_properties values(\"restartTime\", null);");
-	}
-	
+		
 	/**
 	 * SQL to create conferences table.
 	 * 
@@ -135,26 +124,32 @@ public class DBInitializer {
 	 */
 	private static String createConferencesTableSQL() {
 		String sql = "CREATE TABLE conference (conferenceName TEXT UNIQUE NOT NULL, " 
-					+ "conferenceType TEXT, uniqueId INTEGER PRIMARY KEY, "
+					+ "conferenceType TEXT DEFAULT 'scheduled', uniqueId INTEGER PRIMARY KEY AUTOINCREMENT, "
 					+ "private INTEGER, joinAudioMuted INTEGER, joinVideoMuted INTEGER, " 
 					+ "enforceMaximumAudioPorts INTEGER, enforceMaximumVideoPorts INTEGER, "
 					+ "templateName TEXT, templateNumber INTEGER, numericId TEXT, "
 					+ "guestNumericId TEXT, registerWithGatekeeper INTEGER, pin TEXT, "
 					+ "registerWithSIPRegistrar INTEGER, startTime DATETIME DEFAULT current_timestamp, "
 					+ "durationSeconds INTEGER, endTime DATETIME, guestPin TEXT, description TEXT, "
-					+ "startLocked INTEGER, conferenceMeEnabled INTEGER, automaticLectureMode TEXT, "
+					+ "startLocked INTEGER, conferenceMeEnabled INTEGER DEFAULT 1, "
+					+ "automaticLectureMode TEXT DEFAULT 'disabled', "
 					+ "automaticLectureModeEnabled INTEGER, automaticLectureModeTimeout INTEGER, "
-					+ "multicastStreamingEnabled INTEGER, unicastStreamingEnabled INTEGER, "
-					+ "contentMode TEXT, h239Enabled INTEGER, lastChairmanLeavesDisconnect INTEGER, "
+					+ "multicastStreamingEnabled INTEGER, unicastStreamingEnabled INTEGER DEFAULT 1, "
+					+ "contentMode TEXT DEFAULT 'transcoded', h239Enabled INTEGER DEFAULT 1, "
+					+ "lastChairmanLeavesDisconnect INTEGER DEFAULT 1, "
 					+ "cleanupTimeout INTEGER, preconfiguredParticipantsDefer INTEGER, "
-					+ "contentTxCodec TEXT, contentTxMinimumBitRate TEXT, maximumAudioPorts INTEGER, "
-					+ "maximumVideoPorts INTEGER, reservedAudioPorts INTEGER, reservedVideoPorts INTEGER, "
-					+ "repetition TEXT, weekDay TEXT, whichWeek TEXT, weekDays TEXT, terminationType TEXT, "
-					+ "numberOfRepeats INTEGER, customLayoutEnabled INTEGER, layoutControlEx TEXT, "
-					+ "cameraControl TEXT, newParticipantsCustomLayout INTEGER, customLayout INTEGER, "
-					+ "chairControl TEXT, suppressDtmfEx TEXT, inCallMenuControlChair TEXT, " 
-					+ "inCallMenuControlGuest TEXT, encryptionRequired INTEGER, " 
-					+ "contentContribution INTEGER, contentTransmitResolutions TEXT);";
+					+ "contentTxCodec TEXT DEFAULT 'automatic', contentTxMinimumBitRate TEXT DEFAULT '0', " 
+					+ "maximumAudioPorts INTEGER, maximumVideoPorts INTEGER, reservedAudioPorts INTEGER, "
+					+ "reservedVideoPorts INTEGER, repetition TEXT DEFAULT 'none', weekDay TEXT, "
+					+ "whichWeek TEXT, weekDays TEXT, terminationType TEXT, numberOfRepeats INTEGER, "
+					+ "customLayoutEnabled INTEGER, layoutControlEx TEXT DEFAULT 'feccWithDtmfFallback', "
+					+ "cameraControl TEXT DEFAULT 'feccWithDtmfFallback', "
+					+ "floorStatus TEXT DEFAULT 'inactive', "
+					+ "newParticipantsCustomLayout INTEGER, customLayout INTEGER DEFAULT 8, "
+					+ "chairControl TEXT DEFAULT 'none', suppressDtmfEx TEXT DEFAULT 'fecc', " 
+					+ "inCallMenuControlChair TEXT DEFAULT 'local', contentImportant INTEGER, "
+					+ "inCallMenuControlGuest TEXT DEFAULT 'local', encryptionRequired INTEGER, " 
+					+ "contentContribution INTEGER DEFAULT 1, contentTransmitResolutions TEXT DEFAULT '4to3Only');";
 		return sql;
 	}
 
@@ -165,7 +160,7 @@ public class DBInitializer {
 	 */
 	private static String createParticipantsTableSQL() {
 		String sql = "CREATE TABLE participant ( conferenceName TEXT NOT NULL, participantName TEXT NOT NULL, "
-					+ "autoAttendantUniqueID INTEGER PRIMARY KEY, connectionUniqueId INTEGER, "
+					+ "autoAttendantUniqueID INTEGER PRIMARY KEY AUTOINCREMENT, connectionUniqueId INTEGER, "
 					+ "addResponse INTEGER, participantProtocol TEXT, participantType TEXT, "
 					+ "address TEXT, gatewayAddress TEXT, useSIPRegistrar INTEGER, " 
 					+ "transportProtocol TEXT, password TEXT, deferConnection INTEGER, " 

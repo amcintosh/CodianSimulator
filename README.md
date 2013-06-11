@@ -6,7 +6,7 @@ This is *not* a video bridge.
 Obtaining multiple MCUs for development and lab testing can be prohibitively expensive, 
 so the purpose of this is to aid in development and testing of code that requires multiple bridges 
 (load balancing, monitoring, etc.). This is meant to supplement an existing bridge for development 
-and it is not recommended to use this simulator without an actual bridge also available.     
+and it is not recommended to use this simulator without an actual bridge also available.
 
 
 ### Usage
@@ -26,6 +26,9 @@ I have thus far only coded the endpoints that I have actually needed myself, whi
 - participant.enumerate
 - ~~participant.modify~~
 
+Some of the return data is hardcoded if the endpoint that configure it aren't yet implemented. 
+You may need some customization if your uses are particularly different than mine.
+
 
 ### Build
 
@@ -38,7 +41,10 @@ I have only tested with tomcat6/7.
 As the primary purpose of this is to replicate the API endpoints of an actual Cisco TelePresence MCU, 
 pretty much everything beyond the front facing services was secondary. I have opted for a sqlite
 database for persistence that is destroyed and recreated on undeploy/deploy (you could of course 
-change the base directory so that it sticks around).   
+change the base directory so that it sticks around). The design is very light, basically throwing the
+data into the database or returning it with some light massaging. Features that I haven't needed 
+that aren't particularly straight forward, or are not really required due to the nature of the application 
+(not really a bridge) may be hardcoded.
 
 
 ### Todo

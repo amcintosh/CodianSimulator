@@ -3,8 +3,9 @@ package net.amcintosh.codian.service;
 import java.util.Date;
 import java.util.HashMap;
 
-import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.amcintosh.codian.db.DBUtil;
 
@@ -13,7 +14,7 @@ import net.amcintosh.codian.db.DBUtil;
  */
 public class Device {
 
-	private static Logger log = Logger.getLogger(Device.class.getName());
+	private static Logger log = LoggerFactory.getLogger(Device.class);
 	
 	public HashMap<String,Object> query(HashMap<String, Object> params) throws XmlRpcException {
 		if (log.isDebugEnabled()) {

@@ -7,7 +7,8 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.amcintosh.codian.Config;
 import net.amcintosh.codian.Constants;
@@ -17,8 +18,8 @@ import net.amcintosh.codian.Constants;
  */
 public class DBInitializer {
 
-	private static Logger log = Logger.getLogger(DBInitializer.class.getName());
-
+	private static Logger log = LoggerFactory.getLogger(DBInitializer.class);
+	
 	/**
 	 * Check if a database exists at the default location.
 	 * 

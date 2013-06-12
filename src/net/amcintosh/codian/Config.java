@@ -6,7 +6,8 @@ import java.util.Enumeration;
 import java.util.Properties;
 
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
@@ -17,8 +18,7 @@ public class Config {
 	private static Config ref;
 	private Properties props = new Properties();
 
-	private static Logger log = Logger.getLogger(Config.class.getName());
-
+	private static Logger log = LoggerFactory.getLogger(Config.class);
 
 	public static Config getConfig() {
 		if (ref == null)

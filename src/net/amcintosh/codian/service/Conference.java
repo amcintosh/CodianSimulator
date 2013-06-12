@@ -7,15 +7,16 @@ import java.util.List;
 import net.amcintosh.codian.db.ConferenceDB;
 import net.amcintosh.codian.Constants;
 
-import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
  */
 public class Conference {
 	
-	private static Logger log = Logger.getLogger(Conference.class.getName());
+	private static Logger log = LoggerFactory.getLogger(Conference.class);
 	
 	/**
 	 * 
@@ -99,6 +100,27 @@ public class Conference {
 			data.put("currentRevision","");
 		}
 		return data;
+	}
+
+	public HashMap<String,Object> destroy(HashMap<String, Object> params) throws XmlRpcException {
+		boolean success = false;
+		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {
+			if (params.get("conferenceName")==null) {
+				throw new XmlRpcException("no conference name or auto attendant id supplied");	
+			}
+
+			String conferenceName = params.get("conferenceName").toString();
+			if (!ConferenceDB.getConferenceExists(conferenceName)) {
+				throw new XmlRpcException("no such conference or auto attendant");	
+			}
+			
+			success = ConferenceDB.deleteConference(params.get("conferenceName").toString());
+		}
+		if (!success) {
+			throw new XmlRpcException("operation failed");
+		}
+		
+		return params;
 	}
 
 }

@@ -1,6 +1,7 @@
 package net.amcintosh.codian.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,14 +11,15 @@ import java.util.List;
 
 import net.amcintosh.codian.Constants;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
  */
 public class ParticipantDB {
 
-	private static Logger log = Logger.getLogger(ParticipantDB.class.getName());
+	private static Logger log = LoggerFactory.getLogger(ParticipantDB.class);
 	
 	/**
 	 * 
@@ -33,6 +35,10 @@ public class ParticipantDB {
 			con.setAutoCommit(false);
 
 			Statement stat = con.createStatement();
+			/* 
+			 * TODO: This should probably be rewritten with a prepared statement,
+			 * but since this is internal dev/testing use only, security is lower priority.   
+			 */
 			String insert = DBUtil.createInsertFromParameters("participant",params);		
 			stat.executeUpdate(insert);
 			con.commit();
@@ -51,6 +57,40 @@ public class ParticipantDB {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param conferenceName
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean deleteParticipants(String conferenceName) {
+		Connection con = null;
+		if (log.isDebugEnabled()) {
+			log.debug("deleteParticipants");
+		}
+		try {
+			con = DBManager.getInstance().getConnection();
+			con.setAutoCommit(false);
+			
+			String delete = "DELETE FROM participant WHERE conferenceName = ?";
+			PreparedStatement stat = con.prepareStatement(delete);
+			stat.setString(1, conferenceName);				
+			int status = stat.executeUpdate();
+			con.commit();
+			return status==1 ? true : false;
+		} catch (SQLException e) {
+			log.error("deleteParticipants",e);
+			return false;
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+	}
+	
 	public static List<HashMap<String,Object>> getParticipants(int id) {
 		String query = "";
 		if (id > 0) {

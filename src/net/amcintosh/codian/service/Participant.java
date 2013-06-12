@@ -7,15 +7,16 @@ import java.util.List;
 import net.amcintosh.codian.Constants;
 import net.amcintosh.codian.db.ParticipantDB;
 
-import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
  */
 public class Participant {
 	
-	private static Logger log = Logger.getLogger(Participant.class.getName());
+	private static Logger log = LoggerFactory.getLogger(Participant.class);
 	
 	/**
 	 * 
@@ -51,6 +52,7 @@ public class Participant {
 		
 		return params;
 	}
+	
 	
 	/**
 	 * 

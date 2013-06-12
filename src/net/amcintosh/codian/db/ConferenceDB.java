@@ -1,6 +1,7 @@
 package net.amcintosh.codian.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -14,14 +15,14 @@ import java.util.TimeZone;
 
 import net.amcintosh.codian.Constants;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
  */
 public class ConferenceDB {
-
-	private static Logger log = Logger.getLogger(ConferenceDB.class.getName());
+	private static Logger log = LoggerFactory.getLogger(ConferenceDB.class);
 	
 	/**
 	 * 
@@ -30,14 +31,20 @@ public class ConferenceDB {
 	 * @throws SQLException 
 	 */
 	public static boolean insertConference(HashMap<String, Object> params) throws SQLException {
+		if (log.isDebugEnabled()) {
+			log.debug("insertConference: " + params);
+		}
+		
 		Connection con = null;
-
 		try {
 			con = DBManager.getInstance().getConnection();
 			con.setAutoCommit(false);
 
 			Statement stat = con.createStatement();
-			
+			/* 
+			 * TODO: This should probably be rewritten with a prepared statement,
+			 * but since this is internal dev/testing use only, security is lower priority.   
+			 */
 			String insert = DBUtil.createInsertFromParameters("conference",params);		
 			stat.executeUpdate(insert);
 			con.commit();
@@ -55,6 +62,70 @@ public class ConferenceDB {
 		return true;
 	}
 
+	/**
+	 * 
+	 * @param conferenceName
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean deleteConference(String conferenceName) {
+		Connection con = null;
+		if (log.isDebugEnabled()) {
+			log.debug("deleteConference: " + conferenceName);
+		}
+		try {
+			ParticipantDB.deleteParticipants(conferenceName);
+			
+			con = DBManager.getInstance().getConnection();
+			con.setAutoCommit(false);
+
+			String delete = "DELETE FROM conference WHERE conferenceName = ?";
+			PreparedStatement stat = con.prepareStatement(delete);
+			stat.setString(1, conferenceName);				
+			int status = stat.executeUpdate();
+			con.commit();
+			return status==1 ? true : false;
+		} catch (SQLException e) {
+			log.error("deleteConference",e);
+			return false;
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+	}
+	
+	public static boolean getConferenceExists(String conferenceName) {
+		Connection con = null;
+		if (log.isDebugEnabled()) {
+			log.debug("getConferenceExists: " + conferenceName);
+		}
+		try {
+			con = DBManager.getInstance().getConnection();
+
+			String query = "SELECT uniqueId FROM conference WHERE conferenceName = ?";
+			PreparedStatement stat = con.prepareStatement(query);
+			stat.setString(1, conferenceName);				
+			ResultSet res = stat.executeQuery();
+			boolean success = res.isBeforeFirst();
+			stat.close();
+			return success;
+		} catch (SQLException e) {
+			log.error("deleteConference",e);
+			return false;
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+		
+	}
 	
 	/**
 	 * 
@@ -94,8 +165,8 @@ public class ConferenceDB {
 			con = DBManager.getInstance().getConnection();
 			
 			stat = con.createStatement();
-			if (log.isTraceEnabled()) {
-				log.trace("getConferences: " + query);
+			if (log.isDebugEnabled()) {
+				log.debug("getConferences: " + query);
 			}
 			
 			ResultSet resultSet = stat.executeQuery(query);
@@ -175,6 +246,7 @@ public class ConferenceDB {
 	
 	
 	/**
+	 * Return data from conference for conference.enumerate operation.
 	 * 
 	 * @param enumerateFilter
 	 * @param minId
@@ -209,8 +281,8 @@ public class ConferenceDB {
 			con = DBManager.getInstance().getConnection();
 			
 			stat = con.createStatement();
-			if (log.isTraceEnabled()) {
-				log.trace("getConferencesForEnumerate: " + query);
+			if (log.isDebugEnabled()) {
+				log.debug("getConferencesForEnumerate: " + query);
 			}
 			
 			ResultSet resultSet = stat.executeQuery(query);

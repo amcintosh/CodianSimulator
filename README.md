@@ -1,7 +1,7 @@
 # Codian Simulator
 
 This is a small project to simulate the API of a Cisco TelePresence MCU (née Tandberg Codian MCU). 
-This is *not* a video bridge. 
+This is **not** a video bridge. 
 
 Obtaining multiple MCUs for development and lab testing can be prohibitively expensive, 
 so the purpose of this is to aid in development and testing of code that requires multiple bridges 
@@ -11,7 +11,7 @@ and it is not recommended to use this simulator without an actual bridge also av
 
 ### Usage
 
-The application is meant to be a dropin for an Cisco TelePresence MCU and as such should match 
+The application is meant to be a drop-in for an Cisco TelePresence MCU and as such should match 
 Cisco's [Programming Guides](http://www.cisco.com/en/US/products/ps11341/products_programming_reference_guides_list.html)
 (Currently coded for API version 2.9). 
 
@@ -19,14 +19,14 @@ I have thus far only coded the endpoints that I have actually needed myself, whi
 
 - device.query
 - conference.create
-- ~~conference.destroy~~
+- conference.destroy
 - conference.enumerate
 - ~~conference.paneplacement.modify~~
 - participant.add
-- participant.enumerate
+- ~~participant.enumerate~~
 - ~~participant.modify~~
 
-Some of the return data is hardcoded if the endpoint that configure it aren't yet implemented. 
+Some of the return data is hard-coded if the endpoint that configure it aren't yet implemented. 
 You may need some customization if your uses are particularly different than mine.
 
 

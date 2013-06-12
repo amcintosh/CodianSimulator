@@ -8,8 +8,10 @@ import javax.servlet.ServletConfig;
 
 import net.amcintosh.codian.Config;
 import net.amcintosh.codian.db.DBInitializer;
+import net.amcintosh.codian.service.Participant;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -18,7 +20,7 @@ import org.apache.log4j.Logger;
 public class CodianStartupServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 5430223026527766316L;
-	private static Logger log = Logger.getLogger(CodianStartupServlet.class.getName());
+	private static Logger log = LoggerFactory.getLogger(CodianStartupServlet.class);
 
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {

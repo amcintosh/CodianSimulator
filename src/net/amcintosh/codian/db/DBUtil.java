@@ -13,14 +13,15 @@ import java.util.TimeZone;
 
 import net.amcintosh.codian.Constants;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Andrew McIntosh
  */
 public class DBUtil {
 
-	private static Logger log = Logger.getLogger(DBUtil.class.getName());
+	private static Logger log = LoggerFactory.getLogger(DBUtil.class);
 
 	/**
 	 * 
@@ -68,7 +69,7 @@ public class DBUtil {
 	 * @return
 	 */
 	protected static String createInsertFromParameters(String tableName, HashMap<String, Object> params) {
-		
+
 		String fields = "";
 		String values = "";
 		Iterator<String> iter = params.keySet().iterator();

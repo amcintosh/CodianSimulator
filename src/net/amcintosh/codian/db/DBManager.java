@@ -7,7 +7,8 @@ import java.sql.SQLException;
 
 import net.amcintosh.codian.Config;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -16,7 +17,7 @@ import org.apache.log4j.Logger;
  */
 public class DBManager {
 
-	private static Logger log = Logger.getLogger(DBManager.class.getName());
+	private static Logger log = LoggerFactory.getLogger(DBManager.class);
 	
     private static Object _doubleCheckLockingPattern = new Object();
     private static DBManager instance = null;
@@ -48,7 +49,7 @@ public class DBManager {
     	try {
     		Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
-			log.error(e);
+			log.error("getConnection", e);
 		}
 		Connection con = DriverManager.getConnection("jdbc:sqlite:"+Config.getConfig().getProperty("app_root")+DB_FILE, "", "");
         return con;

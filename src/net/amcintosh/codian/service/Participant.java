@@ -25,7 +25,11 @@ public class Participant {
 	 * @throws XmlRpcException
 	 */
 	public HashMap<String,Object> add(HashMap<String, Object> params) throws XmlRpcException {
+		HashMap<String,Object> result = new HashMap<String,Object>();
 		boolean success = false;
+		boolean addResponse = params.get("addResponse")!=null ? (boolean)params.get("addResponse") : false;
+		params.remove("addResponse");
+		
 		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {
 			if (params.get("conferenceName")==null) {
 				throw new XmlRpcException("no conference name or auto attendant id supplied");	
@@ -46,11 +50,23 @@ public class Participant {
 				
 			}
 		}
-		if (!success) {
+		if (success) {
+			result.put(Constants.STATUS_KEY, Constants.SUCCESS_MESSAGE);
+			
+			if (addResponse) {
+				HashMap<String,Object> participantData = new HashMap<String,Object>();
+				participantData.put("participantName", params.get("participantName"));
+				participantData.put("conferenceName", params.get("conferenceName"));
+				participantData.put("participantType", params.get("participantType")==null ? "by_address" : params.get("participantType"));
+				participantData.put("participantProtocol", params.get("participantProtocol")==null ? "h323" : params.get("participantProtocol"));
+				
+				result.put("participant", participantData);	
+			}
+		} else {
 			throw new XmlRpcException("operation failed");
 		}
 		
-		return params;
+		return result;
 	}
 	
 	
@@ -64,6 +80,22 @@ public class Participant {
 		HashMap<String, Object> data = new HashMap<String,Object>();
 		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {
 			int incomingEnumerateID = -1; 
+			boolean currentState = false;
+			boolean configuredState = false;
+			
+			Object[] operationScope = (Object[]) params.get("operationScope");
+			if (operationScope!=null 
+					&& ((operationScope.length>0 && "currentState".equals(operationScope[0])) 
+						|| (operationScope.length>1 && "currentState".equals(operationScope[1])))) {
+				currentState = true;
+			}
+			if (operationScope!=null 
+					&& ((operationScope.length>0 && "configuredState".equals(operationScope[0])) 
+						|| (operationScope.length>1 && "configuredState".equals(operationScope[1])))) {
+				configuredState = true;
+			}
+			
+			//addResponse boolean true to return the details of the added participant.
 			if (params.get("enumerateID")!=null) {
 				incomingEnumerateID = Integer.parseInt((String)params.get("enumerateID"));
 			}
@@ -78,13 +110,14 @@ public class Participant {
 						+ ", enumerateFilter=" + enumerateFilter);
 			}
 			
-			List<HashMap<String,Object>> participants = ParticipantDB.getParticipants(""); 
+			List<HashMap<String,Object>> participants = ParticipantDB.getParticipantsForEnumerate("", -1, currentState, configuredState); 
 			data.put("participants", participants);
 			
 			if (participants.size()>=Constants.PARTICIPANT_ENUMERATE_MAXRESULTS) {
 				data.put("enumerateID", ""+participants.get(participants.size()-1).get("autoAttendantUniqueID"));	
 			}
 			
+			data.put("currentRevision","");
 		}
 		return data;
 	}

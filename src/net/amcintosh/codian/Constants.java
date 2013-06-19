@@ -16,4 +16,7 @@ public class Constants {
 	public static final int PARTICIPANT_ENUMERATE_MAXRESULTS = 
 			Integer.parseInt(Config.getConfig().getProperty("participant.enumerate.maxResults"));
 
+	public static final String STATUS_KEY = "status";
+
+	public static final String SUCCESS_MESSAGE = "operation successful";
 }

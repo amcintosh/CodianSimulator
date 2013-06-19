@@ -129,23 +129,28 @@ public class ConferenceDB {
 	
 	/**
 	 * 
+	 * @param id
+	 * @return
+	 */	
+	public static List<HashMap<String,Object>> getConference(int id) {
+		String query = null;
+		if (id > 0) {
+			query += " AND uniqueId = " + id;
+		}
+		return getConferences(query);
+	}
+	
+	/**
+	 * 
 	 * @return
 	 */
 	public static List<HashMap<String,Object>> getConferences() {
 		return getConferences(null);
 	}
 	
-	
-	/**
-	 * 
-	 * @param id
-	 * @return
-	 */	
-	public static List<HashMap<String,Object>> getConferences(int id) {
-		String query = null;
-		if (id > 0) {
-			query += " AND uniqueId = " + id;
-		}
+	public static List<HashMap<String,Object>> getActiveConferences() {
+		String query = " AND startTime < DATETIME('now')"
+					 + " AND DATETIME(strftime('%s', startTime) + durationSeconds, 'unixepoch') > DATETIME('now')";			
 		return getConferences(query);
 	}
 

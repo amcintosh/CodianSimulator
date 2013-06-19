@@ -160,9 +160,9 @@ public class DBInitializer {
 	 * @return String of Create Table SQL
 	 */
 	private static String createParticipantsTableSQL() {
-		String sql = "CREATE TABLE participant ( conferenceName TEXT NOT NULL, participantName TEXT NOT NULL, "
-					+ "autoAttendantUniqueID INTEGER PRIMARY KEY AUTOINCREMENT, connectionUniqueId INTEGER, "
-					+ "addResponse INTEGER, participantProtocol TEXT, participantType TEXT, "
+		String sql = "CREATE TABLE participant (conferenceName TEXT NOT NULL, participantName TEXT NOT NULL, "
+					+ "autoAttendantUniqueID INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ "participantProtocol TEXT DEFAULT 'h323', participantType TEXT DEFAULT 'by_address', "
 					+ "address TEXT, gatewayAddress TEXT, useSIPRegistrar INTEGER, " 
 					+ "transportProtocol TEXT, password TEXT, deferConnection INTEGER, " 
 					+ "addAsGuest INTEGER, actAsRecorder INTEGER, maxBitRateToMCU INTEGER, " 
@@ -173,8 +173,8 @@ public class DBInitializer {
 					+ "videoTxWidescreen INTEGER, videoTxMaxResolution TEXT, " 
 					+ "videoRxMaxResolution TEXT, autoConnect INTEGER, autoDisconnect INTEGER, " 
 					+ "borderWidth INTEGER, dtmfSequence TEXT, linkType TEXT, h239Negotiation TEXT, " 
-					+ "layoutControlEnabled INTEGER, " 
 					+ "UNIQUE(conferenceName, participantName));";
+
 		return sql;
 	}
 

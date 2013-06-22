@@ -5,14 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
-
 import net.amcintosh.codian.Constants;
 
 import org.slf4j.Logger;
@@ -61,6 +56,40 @@ public class ParticipantDB {
 		return true;
 	}
 
+	
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws SQLException
+	 */
+	public static boolean updateParticipant(HashMap<String, Object> params) throws SQLException {
+		Connection con = null;
+
+		try {
+			con = DBManager.getInstance().getConnection();
+			con.setAutoCommit(false);
+			String where = "WHERE participantName = '" + params.get("participantName") + "' "
+						+ "AND conferenceName = '" + params.get("conferenceName") + "'";
+			PreparedStatement stat = DBUtil.createUpdateFromParameters(con,"participant",params,where);		
+			stat.execute();
+			con.commit();
+		} catch (SQLException e) {
+			log.error("insertParticipant",e);
+			throw e;
+		} finally {
+			if (con != null) {
+				try {
+					con.close();
+				} catch (SQLException e) {
+				}
+			}
+		}
+
+		return true;
+	}
+
+	
 	/**
 	 * 
 	 * @param conferenceName
@@ -109,7 +138,8 @@ public class ParticipantDB {
 		Connection con = null;
 		Statement stat = null;
 
-		String query = "SELECT p.*, c.uniqueId AS 'connectionUniqueId' FROM participant p, conference c WHERE p.conferenceName = c.conferenceName ";
+		String query = "SELECT p.*, c.uniqueId AS 'connectionUniqueId', c.cameraControl "
+				+ "FROM participant p, conference c WHERE p.conferenceName = c.conferenceName ";
 		
 		if (minId > 0) {
 			query += " AND autoAttendantUniqueID > " + minId;
@@ -161,8 +191,32 @@ public class ParticipantDB {
 					currentStateData.put("maxBitRateToMCU", resultSet.getInt("maxBitRateToMCU"));
 					currentStateData.put("maxBitRateFromMCU", resultSet.getInt("maxBitRateFromMCU"));
 					currentStateData.put("motionSharpnessTradeoff", resultSet.getString("motionSharpnessTradeoff"));
+					//callState string State of the call between the MCU and this participant. 
+					//One of dormant, alerting, connected, or disconnected 
 					
+					//connectTime dateTime. Only returned after the participant is connected. This value
+					//is always present if the call state is connected. It may or may not be defined for participants in the disconnected state, depending on whether they were ever connected.
 					
+					//disconnectTime dateTime. Only returned after the participant has disconnected.
+					
+					//disconnectReason string Only returned after the participant has disconnected; thiscontains one of the Disconnect reasons [p.125].
+					//connectPending boolean 
+					currentStateData.put("audioRxCodec", "none");
+					currentStateData.put("audioTxCodec", "none");
+					currentStateData.put("audioRxMuted", resultSet.getBoolean("audioRxMuted"));
+					currentStateData.put("audioRxGainMode", resultSet.getString("audioRxGainMode"));
+					currentStateData.put("audioRxGainMillidB", resultSet.getInt("audioRxGainMillidB"));
+					currentStateData.put("videoRxCodec", "none");
+					currentStateData.put("videoTxCodec", "none");
+					currentStateData.put("videoRxMuteds", resultSet.getBoolean("videoRxMuted"));
+					currentStateData.put("videoTxWidescreen", resultSet.getBoolean("videoTxWidescreen"));
+					currentStateData.put("contentRxType", "none");		
+					currentStateData.put("cameraControl", resultSet.getString("cameraControl"));
+					currentStateData.put("suppressDtmfEx", "default");
+					
+					currentStateData.put("h239Negotiation", resultSet.getString("h239Negotiation"));
+					currentStateData.put("borderWidth", resultSet.getInt("borderWidth"));
+					currentStateData.put("autoDisconnect", resultSet.getBoolean("autoDisconnect"));
 					
 					participant.put("currentState", currentStateData);
 				}

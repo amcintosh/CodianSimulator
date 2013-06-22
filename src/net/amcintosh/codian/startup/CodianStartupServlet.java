@@ -8,8 +8,6 @@ import javax.servlet.ServletConfig;
 
 import net.amcintosh.codian.Config;
 import net.amcintosh.codian.db.DBInitializer;
-import net.amcintosh.codian.service.Participant;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

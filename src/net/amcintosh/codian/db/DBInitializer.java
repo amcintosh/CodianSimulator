@@ -150,7 +150,8 @@ public class DBInitializer {
 					+ "chairControl TEXT DEFAULT 'none', suppressDtmfEx TEXT DEFAULT 'fecc', " 
 					+ "inCallMenuControlChair TEXT DEFAULT 'local', contentImportant INTEGER, "
 					+ "inCallMenuControlGuest TEXT DEFAULT 'local', encryptionRequired INTEGER, " 
-					+ "contentContribution INTEGER DEFAULT 1, contentTransmitResolutions TEXT DEFAULT '4to3Only');";
+					+ "contentContribution INTEGER DEFAULT 1, contentTransmitResolutions TEXT DEFAULT '4to3Only', "
+					+ "authenticationUser TEXT, authenticationPassword TEXT);";
 		return sql;
 	}
 
@@ -166,13 +167,16 @@ public class DBInitializer {
 					+ "address TEXT, gatewayAddress TEXT, useSIPRegistrar INTEGER, " 
 					+ "transportProtocol TEXT, password TEXT, deferConnection INTEGER, " 
 					+ "addAsGuest INTEGER, actAsRecorder INTEGER, maxBitRateToMCU INTEGER, " 
-					+ "maxBitRateFromMCU INTEGER, motionSharpnessTradeoff TEXT, " 
+					+ "maxBitRateFromMCU INTEGER, motionSharpnessTradeoff TEXT DEFAULT 'default', " 
 					+ "displayNameOverrideStatus INTEGER, displayNameOverrideValue TEXT, " 
-					+ "cpLayout TEXT, layoutControlEx TEXT, audioRxMuted INTEGER, " 
-					+ "audioRxGainMode TEXT, audioRxGainMillidB INTEGER, videoRxMuted INTEGER, " 
+					+ "cpLayout TEXT, layoutControlEx TEXT DEFAULT 'feccWithDtmfFallback', audioRxMuted INTEGER, " 
+					+ "audioRxGainMode TEXT DEFAULT 'default', audioRxGainMillidB INTEGER, "
+					+ "videoRxMuted INTEGER DEFAULT 0, " 
 					+ "videoTxWidescreen INTEGER, videoTxMaxResolution TEXT, " 
 					+ "videoRxMaxResolution TEXT, autoConnect INTEGER, autoDisconnect INTEGER, " 
-					+ "borderWidth INTEGER, dtmfSequence TEXT, linkType TEXT, h239Negotiation TEXT, " 
+					+ "borderWidth INTEGER, dtmfSequence TEXT, linkType TEXT, " 
+					+ "h239Negotiation TEXT DEFAULT'master', " 
+					+ "authenticationUser TEXT, authenticationPassword TEXT, "
 					+ "UNIQUE(conferenceName, participantName));";
 
 		return sql;

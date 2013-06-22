@@ -76,6 +76,43 @@ public class Participant {
 	 * @return
 	 * @throws XmlRpcException
 	 */
+	public HashMap<String,Object> modify(HashMap<String, Object> params) throws XmlRpcException {
+		HashMap<String,Object> result = new HashMap<String,Object>();
+		boolean success = false;
+		
+		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {
+			if (params.get("conferenceName")==null) {
+				throw new XmlRpcException("no conference name or auto attendant id supplied");	
+			}
+			if (params.get("participantName")==null) {
+				throw new XmlRpcException("no participant name supplied");	
+			}
+			
+			try {
+				success = ParticipantDB.updateParticipant(params);
+			} catch (SQLException e) {
+				throw new XmlRpcException("operation failed");
+			}
+		}
+		if (success) {
+			result.put(Constants.STATUS_KEY, Constants.SUCCESS_MESSAGE);
+			
+	
+
+		} else {
+			throw new XmlRpcException("operation failed");
+		}
+		
+		return result;
+	}
+
+	
+	/**
+	 * 
+	 * @param params
+	 * @return
+	 * @throws XmlRpcException
+	 */
 	public HashMap<String,Object> enumerate(HashMap<String, Object> params) throws XmlRpcException {
 		HashMap<String, Object> data = new HashMap<String,Object>();
 		if (ServiceUtil.authenticateUser(params.get("authenticationUser"),params.get("authenticationPassword"))) {

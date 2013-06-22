@@ -23,8 +23,8 @@ I have thus far only coded the endpoints that I have actually needed myself, whi
 - conference.enumerate
 - ~~conference.paneplacement.modify~~
 - participant.add
-- ~~participant.enumerate~~
-- ~~participant.modify~~
+- participant.enumerate
+- participant.modify
 
 Some of the return data is hard-coded if the endpoint that configure it aren't yet implemented. 
 You may need some customization if your uses are particularly different than mine.

@@ -1,6 +1,8 @@
+Please Note: I am no longer working with Codian MCUs, and as such have not been working on this.
+
 # Codian Simulator
 
-This is a small project to simulate the API of a Cisco TelePresence MCU (née Tandberg Codian MCU). 
+This is a small project to simulate the API of a Cisco TelePresence MCU (nï¿½e Tandberg Codian MCU). 
 This is **not** a video bridge. 
 
 Obtaining multiple MCUs for development and lab testing can be prohibitively expensive, 
@@ -58,3 +60,5 @@ that aren't particularly straight forward, or are not really required due to the
 
 Source code is licensed under the
 [GNU General Public License](http://www.gnu.org/licenses/gpl.html).
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/amcintosh/codiansimulator/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
